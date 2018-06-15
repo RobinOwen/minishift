@@ -42,7 +42,8 @@ _testmain.go
 docs/build
 docs/source/_tmp/*.md
 docs/source/command-ref/*.adoc
-docs/source/**/variables.adoc
+docs/source/**/common_content
+docs/source/common_content/dynamic-attributes.adoc
 docs/source/using/images/minishift-architecture.png.cache
 docs/source/using/images/minishift-architecture-template*
 docs/.bundle/

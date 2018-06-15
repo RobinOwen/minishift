@@ -1,0 +1,3 @@
+include::static-attributes.adoc[]
+
+include::dynamic-attributes.adoc[]

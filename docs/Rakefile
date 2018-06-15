@@ -6,14 +6,15 @@ task :default => :gen
 BUILD_DIR          = "build"
 MARKDOWN_FILES     = Rake::FileList.new("source/_tmp/*.md")
 TOPIC_MAP          = "#{BUILD_DIR}/_topic_map.yml"
-ADOC_VARIABLES     = FileList.new('source/variables.adoc',
- 'source/contributing/variables.adoc',
- 'source/getting-started/variables.adoc',
- 'source/openshift/variables.adoc',
- 'source/troubleshooting/variables.adoc',
- 'source/using/variables.adoc'
-)
-GENERATED_ADOC_DIR = "source/command-ref"
+DOC_SECTIONS       = [
+  'source/contributing',
+  'source/getting-started',
+  'source/openshift',
+  'source/troubleshooting',
+  'source/using',
+]
+ADOC_COMMON_CONTENT = Rake::FileList.new(*DOC_SECTIONS.map { |d| "#{d}/common_content/" })
+GENERATED_ADOC_DIR  = "source/command-ref"
 ADOC_FILES = Rake::FileList.new do |list|
   MARKDOWN_FILES.each do |f|
     adoc = f.ext(".adoc")
@@ -30,7 +31,7 @@ end
 task :clean do
   rm_f Rake::FileList.new("#{GENERATED_ADOC_DIR}/*.adoc")
   rm_rf BUILD_DIR
-  rm_f ADOC_VARIABLES
+  rm_rf ADOC_COMMON_CONTENT
   # find ditaa images based on the fact that they have a cache file
   DITAA_IMAGES = Rake::FileList.new do |list|
     Rake::FileList.new("source/**/images/*-template.png.cache").each do |f|
@@ -87,7 +88,7 @@ end
 
 desc 'Create adoc tar bundle'
 task :adoc_tar => [:init, :adoc_variables, :markdown_to_asciidoc] do
-  file_list = FileList.new('source/**/*.adoc', 'source/**/images/*', TOPIC_MAP, ADOC_VARIABLES)
+  file_list = FileList.new('source/**/*.adoc', 'source/**/images/*', TOPIC_MAP)
   file_list.exclude("source/images/**")
   File.open("#{BUILD_DIR}/minishift-adoc.tar", "wb") do |file|
     Gem::Package::TarWriter.new(file) do |tar|
@@ -115,10 +116,6 @@ task :adoc_variables => :init do
   b2d_iso_version      = ENV['B2D_ISO_VERSION']      || 'unset'
 
   contents = <<EOF
-:project: Minishift
-:download-url: https://github.com/minishift/minishift/releases
-:download-text: {project} Releases
-
 :minishift-version: #{minishift_version}
 :openshift-version: #{openshift_version}
 :centos-iso-version: #{centos_iso_version}
@@ -126,7 +123,8 @@ task :adoc_variables => :init do
 :b2d-iso-version: #{b2d_iso_version}
 EOF
 
-  ADOC_VARIABLES.each { |f| File.write(f, contents) }
+  File.write('source/common_content/dynamic-attributes.adoc', contents)
+  DOC_SECTIONS.each { |dir| cp_r 'source/common_content', dir }
 end
 
 desc 'Check links'
@@ -152,11 +150,5 @@ def source_for_adoc(adoc_file)
     adoc_target = File.split(adoc_target)[1]
 
     markdown_source == adoc_target
-  end
-end
-
-def createAdocTargetFiles
-  MARKDOWN_FILES.each do |f|
-    p "#{f}"
   end
 end

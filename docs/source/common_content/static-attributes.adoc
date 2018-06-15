@@ -1,0 +1,5 @@
+:project: Minishift
+:upstream:
+
+:download-url: https://github.com/minishift/minishift/releases
+:download-text: {project} Releases

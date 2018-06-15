@@ -1,4 +1,4 @@
-include::variables.adoc[]
+include::common_content/attributes.adoc[]
 
 = Accessing the OpenShift Docker Registry
 :icons:

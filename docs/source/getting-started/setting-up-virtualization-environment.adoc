@@ -1,4 +1,4 @@
-include::variables.adoc[]
+include::common_content/attributes.adoc[]
 
 [[setup-virtualization-environment]]
 = Setting Up the Virtualization Environment
